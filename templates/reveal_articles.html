@@ -1,0 +1,185 @@
+<html>
+  <head>
+    <title>Should I Read the News Today?</title>
+    <style>
+       /* Left align the headline cell */
+        .headline-cell {
+            text-align: left;
+            padding-right: 80px;
+        }
+    </style>
+  </head>
+
+  <body>
+  <h1>Should I Read the News Today?</h1>
+  
+  <!-- ###### get user inputs ######-->
+
+  <form id="newsForm" onsubmit="submitForm(event)">
+    
+  <h3>Let AI help you decide 😊 But first, answer the following questions:</h3>
+    
+    <p>Tolerance of bad news (0-10, 10 = can tolerate all bad news):  <input type="range" name="tolerance" value="10" min="0" max="10" oninput="this.nextElementSibling.value = this.value">
+<output>10</output></p>
+
+    <p>
+      Country to analyze the news of:
+      <select name="countryDropdown">
+        <option value="">Select a country code</option>
+        <option value="ae">United Arab Emirates (AE)</option>
+        <option value="ar">Argentina (AR)</option>
+        <option value="at">Australia (AU)</option>
+        <option value="be">Belgium (BE)</option>
+        <option value="bg">Bulgaria (BG)</option>
+        <option value="br">Brazil (BR)</option>
+        <option value="ca">Canada (CA)</option>
+        <option value="ch">Switzerland (CH)</option>
+        <option value="cn">China (CN)</option>
+        <option value="co">Colombia (CO)</option>
+        <option value="cu">Cuba (CU)</option>
+        <option value="cz">Czech Republic (CZ)</option>
+        <option value="de">Germany (DE)</option>
+        <option value="eg">Egypt (EG)</option>
+        <option value="fr">France (FR)</option>
+        <option value="gb">United Kingdom (GB)</option>
+        <option value="gr">Greece (GR)</option>
+        <option value="hk">Hong Kong (HK)</option>
+        <option value="hu">Hungary (HU)</option>
+        <option value="id">Indonesia (ID)</option>
+        <option value="ie">Ireland (IE)</option>
+        <option value="il">Israel (IL)</option>
+        <option value="in">India (IN)</option>
+        <option value="it">Italy (IT)</option>
+        <option value="jp">Japan (JP)</option>
+        <option value="kr">South Korea (KR)</option>
+        <option value="lt">Lithuania (LT)</option>
+        <option value="lv">Latvia (LV)</option>
+        <option value="ma">Morocco (MA)</option>
+        <option value="mx">Mexico (MX)</option>
+        <option value="my">Malaysia (MY)</option>
+        <option value="ng">Nigeria (NG)</option>
+        <option value="nl">Netherlands (NL)</option>
+        <option value="nz">New Zealand (NZ)</option>
+        <option value="ph">Philippines (PH)</option>
+        <option value="pl">Poland (PL)</option>
+        <option value="pt">Portugal (PT)</option>
+        <option value="ro">Romania (RO)</option>
+        <option value="rs">Serbia (RS)</option>
+        <option value="ru">Russia (RU)</option>
+        <option value="sa">Saudi Arabia (SA)</option>
+        <option value="se">Sweden (SE)</option>
+        <option value="sg">Singapore (SG)</option>
+        <option value="sk">Slovakia (SK)</option>
+        <option value="th">Thailand (TH)</option>
+        <option value="tr">Turkey (TR)</option>
+        <option value="tw">Taiwan (TW)</option>
+        <option value="ua">Ukraine (UA)</option>
+        <option value="us">United States (US)</option>
+        <option value="ve">Venezuela (VE)</option>
+        <option value="za">South Africa (ZA)</option>
+      </select>
+    </p>
+    <button type="submit">Submit</button>
+  </form>
+
+  <p id="loadingIndicator" style="display:none;">Analyzing a random sample of headlines from the country you chose...</p>
+  <div id="resultContainer"></div>
+  <div id="tableContainer">
+    <table>
+        <tr>
+            <th></th>
+            <th></th>
+        </tr>
+    </table>
+  </div> <!-- New div for the table -->
+  <div id="messageContainer"></div> <!-- New div for the result message -->
+  
+  <br>
+  <br>
+  <p><a href = "/about">How this works</a></p>
+
+  <script>
+    async function submitForm(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        const resultContainer = document.getElementById("resultContainer");
+        const loadingIndicator = document.getElementById("loadingIndicator");
+
+        // Hide the form and show the loading indicator
+        form.style.display = "none";
+        loadingIndicator.style.display = "block";
+
+        try {
+            const response = await fetch('/result', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if ('error' in data) {
+                loadingIndicator.style.display = "none";
+                const errorMessage = data.error;
+                const messageContainer = document.getElementById("messageContainer");
+                messageContainer.innerHTML = `<h2>You forgot something!</h2><p>${errorMessage}</p><p><a href="/">Try again!</a></p>`;
+            } else {
+                // Hide the loading indicator
+                loadingIndicator.style.display = "none";
+
+                // Display the result message in the message container
+                const messageContainer = document.getElementById("messageContainer");
+
+                // Start appending articles to the table container
+                const tableContainer = document.getElementById("tableContainer");
+                const table = tableContainer.querySelector("table");
+
+                // Clear the table before adding new articles
+                table.innerHTML = `
+                    <tr>
+                        <th>Headline</th>
+                        <th>Sentiment Analysis</th>
+                    </tr>
+                `;
+
+                // Function to add an article to the table
+                function addArticleToTable(article) {
+                    const row = table.insertRow();
+                    const headlineCell = row.insertCell();
+                    const sentimentCell = row.insertCell();
+
+                    // Add a class to the headline table cell
+                    headlineCell.classList.add("headline-cell");
+
+                    headlineCell.innerHTML = `<a href="${article.url}" target="_blank">${article.title}</a>`;
+                    sentimentCell.textContent = article.sentiment;
+                }
+
+                // Function to add articles sequentially with a delay
+                async function appendArticlesSequentially() {
+                    for (const article of data.articles) {
+                        addArticleToTable(article);
+                        // Wait for 800 milliseconds (0.8 seconds) before appending the next article
+                        await new Promise((resolve) => setTimeout(resolve, 800));
+                    }
+
+                    // Wait for 800 milliseconds (0.8 seconds) after the last article
+                    await new Promise((resolve) => setTimeout(resolve, 200));
+
+                    // Display the result message after the delay
+                    messageContainer.innerHTML = `<h1>Result</h1><p>${data.message}</p><p><a href="/">Click here to try again!</a></p>`;
+                }
+
+                // Call the function to append articles sequentially
+                appendArticlesSequentially();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+  </script>
+
+  <p>Made with <3 by <a href = "https://twitter.com/BennyRubanov">Benny</a></p>
+    
+</body>
+  
+</html>
