@@ -1,8 +1,5 @@
 ###### import libraries and api keys ######
 
-#v2 github test
-#v2 test again
-
 import os, requests, json, replicate
 from flask import Flask, request, jsonify, render_template
 
