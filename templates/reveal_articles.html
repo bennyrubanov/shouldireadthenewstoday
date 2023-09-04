@@ -7,6 +7,17 @@
             text-align: left;
             padding-right: 80px;
         }
+      
+         /* Add a CSS class for blurred or grayed-out headlines */
+        .headlines-hidden {
+            filter: blur(3px); /* You can adjust the blur effect as needed */
+            opacity: 0.7; /* You can adjust the opacity for a grayed-out effect */
+        }
+      
+       /* Create space (blank line) after the last article */
+        #toggleButtonContainer {
+            margin-top: 20px; /* Adjust the margin as needed for the desired space */
+        }
     </style>
   </head>
 
@@ -26,34 +37,31 @@
       Country to analyze the news of:
       <select name="countryDropdown">
         <option value="">Select a country code</option>
-        <option value="ae">United Arab Emirates (AE)</option>
         <option value="ar">Argentina (AR)</option>
-        <option value="at">Australia (AU)</option>
+        <option value="au">Australia (AU)</option>
+        <option value="at">Austria (AT)</option>
         <option value="be">Belgium (BE)</option>
-        <option value="bg">Bulgaria (BG)</option>
         <option value="br">Brazil (BR)</option>
+        <option value="bg">Bulgaria (BG)</option>
         <option value="ca">Canada (CA)</option>
-        <option value="ch">Switzerland (CH)</option>
         <option value="cn">China (CN)</option>
         <option value="co">Colombia (CO)</option>
         <option value="cu">Cuba (CU)</option>
         <option value="cz">Czech Republic (CZ)</option>
-        <option value="de">Germany (DE)</option>
         <option value="eg">Egypt (EG)</option>
         <option value="fr">France (FR)</option>
-        <option value="gb">United Kingdom (GB)</option>
+        <option value="de">Germany (DE)</option>
         <option value="gr">Greece (GR)</option>
         <option value="hk">Hong Kong (HK)</option>
         <option value="hu">Hungary (HU)</option>
+        <option value="in">India (IN)</option>
         <option value="id">Indonesia (ID)</option>
         <option value="ie">Ireland (IE)</option>
         <option value="il">Israel (IL)</option>
-        <option value="in">India (IN)</option>
         <option value="it">Italy (IT)</option>
         <option value="jp">Japan (JP)</option>
-        <option value="kr">South Korea (KR)</option>
-        <option value="lt">Lithuania (LT)</option>
         <option value="lv">Latvia (LV)</option>
+        <option value="lt">Lithuania (LT)</option>
         <option value="ma">Morocco (MA)</option>
         <option value="mx">Mexico (MX)</option>
         <option value="my">Malaysia (MY)</option>
@@ -64,19 +72,24 @@
         <option value="pl">Poland (PL)</option>
         <option value="pt">Portugal (PT)</option>
         <option value="ro">Romania (RO)</option>
-        <option value="rs">Serbia (RS)</option>
         <option value="ru">Russia (RU)</option>
         <option value="sa">Saudi Arabia (SA)</option>
-        <option value="se">Sweden (SE)</option>
-        <option value="sg">Singapore (SG)</option>
+        <option value="rs">Serbia (RS)</option>
+        <option value="sg">Singapore (SG)</option>   
         <option value="sk">Slovakia (SK)</option>
+        <option value="za">South Africa (ZA)</option>
+        <option value="kr">South Korea (KR)</option>
+        <option value="se">Sweden (SE)</option>
+        <option value="ch">Switzerland (CH)</option>
+        <option value="tw">Taiwan (TW)</option>
         <option value="th">Thailand (TH)</option>
         <option value="tr">Turkey (TR)</option>
-        <option value="tw">Taiwan (TW)</option>
         <option value="ua">Ukraine (UA)</option>
+        <option value="ae">United Arab Emirates (AE)</option>
+        <option value="gb">United Kingdom (GB)</option>
         <option value="us">United States (US)</option>
         <option value="ve">Venezuela (VE)</option>
-        <option value="za">South Africa (ZA)</option>
+        
       </select>
     </p>
     <button type="submit">Submit</button>
@@ -85,7 +98,8 @@
   <p id="loadingIndicator" style="display:none;">Analyzing a random sample of headlines from the country you chose...</p>
   <div id="resultContainer"></div>
   <div id="tableContainer">
-    <table>
+    <table class="headlines-hidden"> <!-- Apply the CSS class initially -->
+        <tr> 
         <tr>
             <th></th>
             <th></th>
@@ -143,6 +157,10 @@
 
                 // Function to add an article to the table
                 function addArticleToTable(article) {
+                    if (!article.title || !article.url) {
+                        return; // Skip articles with missing data
+                    }
+
                     const row = table.insertRow();
                     const headlineCell = row.insertCell();
                     const sentimentCell = row.insertCell();
@@ -159,14 +177,24 @@
                     for (const article of data.articles) {
                         addArticleToTable(article);
                         // Wait for 800 milliseconds (0.8 seconds) before appending the next article
-                        await new Promise((resolve) => setTimeout(resolve, 600));
+                        await new Promise((resolve) => setTimeout(resolve, 75));
                     }
 
                     // Wait for 800 milliseconds (0.8 seconds) after the last article
-                    await new Promise((resolve) => setTimeout(resolve, 200));
-
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                                  
                     // Display the result message after the delay
                     messageContainer.innerHTML = `<h1>Result</h1><p>${data.message}</p><p><a href="/">Click here to try again!</a></p>`;
+
+                    // Add the "Show Headlines" button after the articles have populated
+                    const buttonContainer = document.createElement("div");
+                    buttonContainer.id = "toggleButtonContainer";
+                    buttonContainer.innerHTML = '<button id="toggleButton">Show Headlines and Sentiment Analysis</button>';
+                    tableContainer.appendChild(buttonContainer);
+
+                    // Add a click event listener to the toggle button
+                    const toggleButton = document.getElementById("toggleButton");
+                    toggleButton.addEventListener("click", toggleHeadlines);
                 }
 
                 // Call the function to append articles sequentially
@@ -174,6 +202,20 @@
             }
         } catch (error) {
             console.error('Error:', error);
+        }
+    }
+
+    // Function to toggle the visibility and styling of headlines
+    function toggleHeadlines() {
+        const tableContainer = document.getElementById("tableContainer");
+        const headlinesTable = tableContainer.querySelector("table");
+
+        if (headlinesTable.classList.contains("headlines-hidden")) {
+            headlinesTable.classList.remove("headlines-hidden");
+            toggleButton.textContent = "Hide Headlines and Sentiment Analysis";
+        } else {
+            headlinesTable.classList.add("headlines-hidden");
+            toggleButton.textContent = "Show Headlines and Sentiment Analysis";
         }
     }
   </script>

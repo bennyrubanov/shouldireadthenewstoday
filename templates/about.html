@@ -5,9 +5,13 @@
 </head>
 <body>
     <h1>How this tool works</h1>
-    <p>Step 1: The app queries an API from newsapi.org to pull in a bunch of news headlines from the country that you, the user, chose. </p>
-  <p>Step 2: It feeds those headlines to an AI model, (in this case, <a href = "https://ai.meta.com/llama/">Meta's Llama 2</a>). The AI model conducts a sentiment analysis on the headlines (rating them "Positive", "Negative", or "Neutral").</p>
+    <p>Step 1: The app queries <a href = "https://newsapi.org/">NewsAPI</a> to pull in a bunch of news headlines from the country that user chooses. </p>
+  <p>Step 2: It feeds those headlines to a sentiment analysis package, (currently, <a href = "https://github.com/cjhutto/vaderSentiment">"VADER"</a>). If the headlines are in a non-English language, I pass those headlines to Google's <a href = "https://cloud.google.com/translate">Cloud Translation API</a> first. The package then conducts a sentiment analysis on the headlines (rating them from -1 to 1, where -1 is very negative, and 1 is very positive (0 is neutral)).</p>
   <p>Step 3: Finally, the app calculates a "bad to good headlines" ratio, and using a pre-defined formula, along with the tolerance of bad news provided by the user, recommends whether or not the user should read the news today! </p>
+  <br>
+  <p><strong>Other notes:</strong></p>
+  <p>Previously, the model was using meta's llama 2 AI model to analyze, but that got expensive to run. I'm considering re-releasing the app using this model, and if you want to help support that effort, feel free to <a href = "https://www.buymeacoffee.com/bennyrubanov">buy me a coffee :)</a> </p>
+  <p>The selection of countries that are supported are due to the availability of countries being scraped by the API I am using to grab daily news headlines: <a href = "https://newsapi.org/">NewsAPI</a>! </p>
   <br>
   <p><a href = "/">Return to home</a></p>
   <br>
