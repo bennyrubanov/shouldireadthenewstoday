@@ -2,7 +2,8 @@
 
 import os, requests, json
 from flask import Flask, request, jsonify
-#from textblob import TextBlob
+
+#import VADER sentiment analysis
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 sentimentAnalyzer = SentimentIntensityAnalyzer()
 
