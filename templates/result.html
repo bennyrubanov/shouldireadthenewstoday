@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Result</title>
+</head>
+<body>
+    <h1>Analyzing news headlines...</h1>
+    <table>
+      <tr>
+        <th>Title</th>
+        <th>Sentiment Analysis</th>
+      </tr>
+      {% for article in articles %}
+        <tr>
+          <td><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></td>
+          <td>{{ article.sentiment }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+
+    <h1>Result</h1>
+    <p>{{ message }}</p>
+    <p><a href = "/">Click here to try again!</a></p>
+</body>
+</html>
